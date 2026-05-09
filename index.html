@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Vanilla JS Podcast App</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>Vanilla JS Podcast App</h1>
+  </header>
+  <section class="filters">
+    <label for="genreFilter">Filter by Genre:</label>
+    <select id="genreFilter">
+      <option value="all">All</option>
+    </select>
+  </section>
+  <section class="grid" id="podcastGrid"></section>
+  <!-- Modal -->
+  <div id="podcastModal" class="modal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="modal-content">
+      <button id="closeModal" aria-label="Close modal">&times;</button>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+</div>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
