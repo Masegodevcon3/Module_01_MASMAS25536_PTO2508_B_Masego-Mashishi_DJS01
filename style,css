@@ -28,7 +28,7 @@ header {
   padding: 1rem;
 }
 
-/* Podcast preview card */
+/* Podcast preview card styles */
 .card {
   background: #fff;
   border-radius: 8px;

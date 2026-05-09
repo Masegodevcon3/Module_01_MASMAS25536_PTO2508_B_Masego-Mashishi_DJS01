@@ -131,7 +131,6 @@ class PodcastApp {
   }
 }
 
-// Initialize the app
 document.addEventListener('DOMContentLoaded', () => {
   new PodcastApp();
 });
