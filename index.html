@@ -2,31 +2,343 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Vanilla JS Podcast App</title>
-<link rel="stylesheet" href="styles.css" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PodcastApp</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #fafafa;
+    margin: 0;
+    padding: 20px;
+  }
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  h1 {
+    margin: 0;
+  }
+  /* Filters */
+  .filters {
+    display: flex;
+    gap: 10px;
+  }
+  select {
+    padding: 6px 10px;
+    font-size: 14px;
+  }
+
+  /* Grid layout */
+  #podcast-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+  }
+
+  /* Podcast card style */
+  .card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  }
+  .card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+  }
+  .card-body {
+    padding: 10px;
+  }
+  .card-title {
+    font-size: 1.1em;
+    margin: 0 0 6px 0;
+  }
+  .card-meta {
+    font-size: 0.9em;
+    color: #555;
+  }
+  /* Modal styles */
+  #modal {
+    position: fixed;
+    top: 0;
+    left:0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    overflow-y: auto;
+    z-index: 999;
+  }
+  #modal.show {
+    display: flex;
+  }
+  .modal-content {
+    background: #fff;
+    max-width: 700px;
+    width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+    padding: 20px;
+    position: relative;
+  }
+  .modal-close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: #ff5f5f;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 1em;
+  }
+  .modal-close:hover {
+    background: #e04e4e;
+  }
+  .modal-header img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+  }
+  .modal-header h2 {
+    margin-top: 15px;
+    margin-bottom: 10px;
+  }
+  .modal-details {
+    margin-top: 10px;
+  }
+  .genres {
+    margin: 10px 0;
+  }
+  .genres span {
+    display: inline-block;
+    background: #eee;
+    border-radius: 20px;
+    padding: 4px 12px;
+    margin: 2px;
+    font-size: 0.9em;
+  }
+  .seasons {
+    margin-top: 15px;
+  }
+  .season {
+    margin-bottom: 10px;
+  }
+  .season h4 {
+    margin: 0 0 5px 0;
+  }
+  /* Responsive adjustments */
+  @media(max-width: 600px){
+    .modal-header img {
+      height: 200px;
+    }
+  }
+</style>
 </head>
 <body>
-<div id="app">
-  <header>
-    <h1>Vanilla JS Podcast App</h1>
-  </header>
-  <section class="filters">
-    <label for="genreFilter">Filter by Genre:</label>
+
+<header>
+  <h1>PodcastApp</h1>
+  <div class="filters">
     <select id="genreFilter">
-      <option value="all">All</option>
+      <option value="All">All Genres</option>
+      <option value="Technology">Technology</option>
+      <option value="Business">Business</option>
+      <option value="Mystery">Mystery</option>
+      <option value="Comedy">Comedy</option>
+      <option value="Entertainment">Entertainment</option>
+      <option value="Health">Health</option>
+      <option value="Lifestyle">Lifestyle</option>
+      <option value="History">History</option>
+      <option value="Education">Education</option>
+      <option value="Sports">Sports</option>
+      <option value="Science">Science</option>
+      <option value="Nature">Nature</option>
     </select>
-  </section>
-  <section class="grid" id="podcastGrid"></section>
-  <!-- Modal -->
-  <div id="podcastModal" class="modal" aria-hidden="true" role="dialog" aria-modal="true">
-    <div class="modal-content">
-      <button id="closeModal" aria-label="Close modal">&times;</button>
-      <div id="modalBody"></div>
+    <select id="sortFilter">
+      <option value="Recently Updated">Recently Updated</option>
+      <option value="Most Popular">Most Popular</option>
+      <option value="Newest">Newest</option>
+    </select>
+  </div>
+</header>
+
+<div id="podcast-grid">
+  <!-- Podcast cards will be inserted here -->
+</div>
+
+<!-- Modal -->
+<div id="modal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModal()">X</button>
+    <div class="modal-header">
+      <img id="modal-cover" src="" alt="Large Cover" />
     </div>
+    <h2 id="modal-title"></h2>
+    <div class="modal-details" id="modal-description"></div>
+    <div class="genres" id="modal-genres"></div>
+    <div class="seasons" id="modal-seasons"></div>
   </div>
 </div>
-<script src="data.js"></script>
-<script src="app.js"></script>
+
+<script>
+  // Sample data with sourced images
+  const podcasts = [
+    {
+      id: 1,
+      coverImage: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      title: 'The Tech Talk',
+      seasons: 3,
+      genres: ['Technology', 'Business'],
+      lastUpdated: '2023-10-01',
+      description: 'A podcast about tech trends and innovations.',
+      seasonsData: [
+        { seasonTitle: 'Season 1', episodes: 12 },
+        { seasonTitle: 'Season 2', episodes: 15 },
+        { seasonTitle: 'Season 3', episodes: 10 },
+      ],
+    },
+    {
+      id: 2,
+      coverImage: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      title: 'Mystery Unveiled',
+      seasons: 5,
+      genres: ['Mystery'],
+      lastUpdated: '2023-09-25',
+      description: 'Deep dives into unsolved mysteries and cases.',
+      seasonsData: [
+        { seasonTitle: 'Season 1', episodes: 8 },
+        { seasonTitle: 'Season 2', episodes: 9 },
+        { seasonTitle: 'Season 3', episodes: 11 },
+        { seasonTitle: 'Season 4', episodes: 14 },
+        { seasonTitle: 'Season 5', episodes: 7 },
+      ],
+    },
+    {
+      id: 3,
+      coverImage: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      title: 'Comedy Hour',
+      seasons: 2,
+      genres: ['Comedy', 'Entertainment'],
+      lastUpdated: '2023-09-20',
+      description: 'Laugh out loud with comedians and funny stories.',
+      seasonsData: [
+        { seasonTitle: 'Season 1', episodes: 20 },
+        { seasonTitle: 'Season 2', episodes: 18 },
+      ],
+    },
+    {
+      id: 4,
+      coverImage: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      title: 'Science Insights',
+      seasons: 4,
+      genres: ['Science', 'Education'],
+      lastUpdated: '2023-09-15',
+      description: 'Explore the latest in science and research.',
+      seasonsData: [
+        { seasonTitle: 'Season 1', episodes: 10 },
+        { seasonTitle: 'Season 2', episodes: 12 },
+        { seasonTitle: 'Season 3', episodes: 8 },
+        { seasonTitle: 'Season 4', episodes: 14 },
+      ],
+    },
+    // Add more as needed
+  ];
+
+  let filteredPodcasts = [...podcasts];
+
+  function displayPodcasts() {
+    const container = document.getElementById('podcast-grid');
+    container.innerHTML = '';
+    for (const p of filteredPodcasts) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.onclick = () => showModal(p);
+      card.innerHTML = `
+        <img src="${p.coverImage}" alt="${p.title}" />
+        <div class="card-body">
+          <div class="card-title">${p.title}</div>
+          <div class="card-meta">${p.seasons} seasons</div>
+          <div class="card-meta">${p.genres.join(', ')}</div>
+          <div class="card-meta">Updated: ${new Date(p.lastUpdated).toLocaleDateString()}</div>
+        </div>`;
+      document.getElementById('podcast-grid').appendChild(card);
+    }
+  }
+
+  function showModal(p) {
+    document.getElementById('modal').classList.add('show');
+    document.getElementById('modal-cover').src = p.coverImage;
+    document.getElementById('modal-title').textContent = p.title;
+    document.getElementById('modal-description').textContent = p.description;
+    document.getElementById('modal-genres').innerHTML = p.genres.map(g => `<span>${g}</span>`).join('');
+    // Seasons
+    let seasonsHTML = '';
+    p.seasonsData.forEach(s => {
+      seasonsHTML += `
+        <div class="season">
+          <h4>${s.seasonTitle}</h4>
+          <p>Episodes: ${s.episodes}</p>
+        </div>`;
+    });
+    document.getElementById('modal-seasons').innerHTML = seasonsHTML;
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.remove('show');
+  }
+
+  document.querySelector('.modal-close').onclick = closeModal;
+
+  // Filters
+  document.getElementById('genreFilter').onchange = () => {
+    applyFilters();
+  };
+  document.getElementById('sortFilter').onchange = () => {
+    applyFilters();
+  };
+
+  function applyFilters() {
+    const genreVal = document.getElementById('genreFilter').value;
+    const sortVal = document.getElementById('sortFilter').value;
+
+    filteredPodcasts = [...podcasts];
+
+    if (genreVal !== 'All') {
+      filteredPodcasts = filteredPodcasts.filter(p => p.genres.includes(genreVal));
+    }
+
+    if (sortVal === 'Recently Updated') {
+      filteredPodcasts.sort((a,b) => new Date(b.lastUpdated) - new Date(a.lastUpdated));
+    } else if (sortVal === 'Most Popular') {
+      filteredPodcasts.sort((a,b) => b.seasons - a.seasons);
+    } else if (sortVal === 'Newest') {
+      filteredPodcasts.sort((a,b) => new Date(b.lastUpdated) - new Date(a.lastUpdated));
+    }
+
+    displayPodcasts();
+  }
+
+  // Initialize
+  window.onload = () => {
+    displayPodcasts();
+  };
+</script>
+
 </body>
 </html>
